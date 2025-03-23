@@ -4,6 +4,7 @@ from django.db import models
 class CustomUser(AbstractUser):
     is_verified = models.BooleanField(default=False)  # Проверен ли пользователь
     verification_code = models.IntegerField(null=True, blank=True)
+    verification_code_created_at = models.DateTimeField(null=True, blank=True)
     
     groups = models.ManyToManyField(
         Group,
