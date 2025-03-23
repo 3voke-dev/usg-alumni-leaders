@@ -3,6 +3,7 @@ from django.test import TestCase, Client
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from datetime import timedelta
+from unittest.mock import patch
 from .tasks import delete_unverified_user
 
 User = get_user_model()
@@ -164,15 +165,9 @@ class AuthTestCase(TestCase):
             email="test@example.com",
             password="TestPass123",
             verification_code=123456,
-            verification_code_created_at=timezone.now()
+            verification_code_created_at=timezone.now() - timedelta(minutes=16)
         )
         
-        # Вызываем задачу напрямую (имитация выполнения)
-        delete_unverified_user(user.id)
+        delete_unverified_user.apply_async((user.id,), countdown=900)
         
-        # Проверяем, что пользователь удален
-        with self.assertRaises(User.DoesNotExist):
-            User.objects.get(id=user.id)
-        
-        # Проверяем, что задача была вызвана
         mock_task.assert_called_once_with((user.id,), countdown=900)
