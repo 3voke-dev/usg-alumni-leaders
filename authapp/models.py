@@ -1,0 +1,21 @@
+from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.db import models
+
+class CustomUser(AbstractUser):
+    is_verified = models.BooleanField(default=False)  # Проверен ли пользователь
+    verification_code = models.IntegerField(null=True, blank=True)
+    
+    groups = models.ManyToManyField(
+        Group,
+        related_name="customuser_set",
+        blank=True
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name="customuser_set",
+        blank=True
+    )
+
+    def __str__(self):
+        return self.username
+

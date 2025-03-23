@@ -1,0 +1,18 @@
+# Django
+core/
+*.log
+*.pot
+__pycache__/
+staticfiles/
+static/
+media/
+
+# Virtual Environment
+.venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Системные файлы
+.DS_Store

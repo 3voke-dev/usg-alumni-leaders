@@ -1,0 +1,29 @@
+<div id="results-container">
+    <h2>Результаты голосования</h2>
+    <ul id="results-list"></ul>
+</div>
+
+<script>
+    function fetchResults() {
+        fetch("/results/1/")  // Указать ID нужных выборов
+            .then(response => response.json())
+            .then(data => {
+                const resultsList = document.getElementById("results-list");
+                resultsList.innerHTML = ""; // Очищаем список перед обновлением
+
+                if (data.results) {
+                    data.results.forEach(result => {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = `${result.candidate}: ${result.votes} голосов`;
+                        resultsList.appendChild(listItem);
+                    });
+                } else {
+                    resultsList.innerHTML = "<li>Ошибка загрузки данных</li>";
+                }
+            })
+            .catch(error => console.error("Ошибка:", error));
+    }
+
+    setInterval(fetchResults, 5000);  // Запрос каждые 5 секунд
+    fetchResults();  // Первоначальный вызов
+</script>

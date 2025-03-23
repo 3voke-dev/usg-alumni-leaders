@@ -1,0 +1,133 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Выборы | USG Alumni Leaders</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    <!-- Bootstrap JS (Загружается перед остальными скриптами) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- FontAwesome (Если иконки нужны) -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    
+    <!-- Django URL переменные -->
+    <script>
+        var registerUrl = "{% url 'authapp:register_user' %}";
+        var verifyUrl = "{% url 'authapp:verify_code' %}";
+    </script>
+</head>
+<body>
+
+    <!-- Хедер -->
+    <header class="hero">
+        <h1>Выборы USG Alumni Leaders</h1>
+    </header>
+
+    <!-- Кнопка регистрации -->
+    <div class="container mt-5 text-center">
+        <div class="d-flex justify-content-center">
+            {% if user.is_authenticated %}
+                <p>Здравствуйте, {{ user.first_name|default:user.username }}!</p>
+            {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary" id="registerBtn">Зарегистрироваться</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Карточки кандидатов -->
+    <div class="container mt-5">
+        {% for election in elections %}
+            <h2 class="text-primary">{{ election.title }}</h2>
+            <p><strong>Период:</strong> {{ election.start_date }} - {{ election.end_date }}</p>
+
+            <div class="row">
+                {% for candidate in election.candidates.all %}
+                <div class="col-md-4 fade-in">
+                    <div class="card candidate-card mb-4">
+                        {% if candidate.photo %}
+                            <img src="{{ candidate.photo.url }}" class="card-img-top" alt="{{ candidate.name }}">
+                        {% else %}
+                            <img src="{% static 'images/default.jpg' %}" class="card-img-top" alt="No Photo">
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ candidate.name }}</h5>
+                            <p class="description">
+                                {{ candidate.bio|default:'' }}
+                            </p>
+                            <a href="#" class="btn vote-btn">Голосовать</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Модальное окно регистрации -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-center position-relative">
+                    <h5 class="modal-title">Регистрация</h5>
+                    <button type="button" class="btn-close position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- Форма регистрации -->
+                    <form id="registerForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label d-flex justify-content-center">ФИО</label>
+                            <input type="text" class="form-control text-center" id="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label d-flex justify-content-center">Email</label>
+                            <input type="email" class="form-control text-center" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label d-flex justify-content-center">Пароль</label>
+                            <input type="password" class="form-control text-center" id="password" required>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                        </div>
+                    </form>
+
+                    <!-- Форма подтверждения -->
+                    <form id="verifyForm" class="d-none">
+                        <div class="mb-3">
+                            <label for="code" class="form-label d-flex justify-content-center">Код подтверждения</label>
+                            <input type="text" class="form-control text-center" id="code" required>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <button type="submit" class="btn btn-success">Подтвердить</button>
+                        </div>
+                    </form>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипт для открытия модального окна -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("registerBtn").addEventListener("click", function() {
+                var registerModal = new bootstrap.Modal(document.getElementById("registerModal"));
+                registerModal.show();
+            });
+        });
+    </script>
+
+    <!-- Подключение кастомных скриптов -->
+    <script src="{% static 'js/register.js' %}"></script>
+
+</body>
+</html>
