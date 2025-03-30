@@ -1,6 +1,8 @@
 import random
 from django.utils import timezone
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, logout, authenticate
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,8 +11,8 @@ from django.core.exceptions import ValidationError
 import json
 from authapp.tasks import delete_unverified_user
 
-
 User = get_user_model()
+
 
 @csrf_exempt
 def register_user(request):
@@ -64,6 +66,7 @@ def register_user(request):
 
     return JsonResponse({"error": "Некорректный запрос"}, status=400)
 
+
 @csrf_exempt
 def verify_code(request):
     if request.method == "POST":
@@ -94,3 +97,31 @@ def verify_code(request):
             return JsonResponse({"error": "Неверный формат кода"}, status=400)
 
     return JsonResponse({"error": "Некорректный запрос"}, status=400)
+
+
+@csrf_exempt  # Отключаем CSRF для AJAX-запросов
+def user_login(request):
+    if request.method == "POST":
+        if request.content_type != "application/json":
+            return JsonResponse({"error": "Invalid Content-Type"}, status=400)
+        
+        try:
+            data = json.loads(request.body)  # Парсим JSON
+            email = data.get("email")
+            password = data.get("password")
+            user = authenticate(request, username=email, password=password)
+
+            if user:
+                login(request, user)
+                return JsonResponse({"success": True})  # ✅ Успех
+            else:
+                return JsonResponse({"success": False, "error": "Invalid credentials"}, status=400)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+def user_logout(request):
+    logout(request)
+    return JsonResponse({"status": "success", "message": "Вы вышли из системы"})

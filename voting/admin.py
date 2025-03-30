@@ -10,24 +10,22 @@ class CandidateInline(admin.TabularInline):  # Или admin.StackedInline
     extra = 1  # Показывать 1 пустую форму для быстрого добавления
 
 
-@admin.action(description="Сделать выбранные голосования активными")
-def make_votings_active(modeladmin, request, queryset):
-    queryset.update(is_active=True)
-
-
-@admin.action(description="Сделать выбранные голосования неактивными")
-def make_votings_inactive(modeladmin, request, queryset):
-    queryset.update(is_active=False)
-
-
 @admin.register(Election)
 class ElectionAdmin(admin.ModelAdmin):
     list_display = ("title", "start_date", "end_date", "is_active")
     list_filter = (("start_date", admin.DateFieldListFilter), "is_active")
     search_fields = ("title",)
     ordering = ("-start_date",)
-    inlines = [CandidateInline]  # Встраиваем редактирование кандидатов
-    actions = ["reset_votes", make_votings_active, make_votings_inactive]  # Добавляем кастомные действия
+    inlines = [CandidateInline]
+    actions = ["reset_votes", "make_votings_active", "make_votings_inactive"]  # <-- Теперь все методы внутри класса
+
+    @admin.action(description="Сделать выбранные голосования активными")
+    def make_votings_active(self, request, queryset):
+        queryset.update(is_active=True)
+
+    @admin.action(description="Сделать выбранные голосования неактивными")
+    def make_votings_inactive(self, request, queryset):
+        queryset.update(is_active=False)
 
     @admin.action(description="Сбросить все голоса для выбранных выборов")
     def reset_votes(self, request, queryset):

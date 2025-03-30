@@ -36,8 +36,51 @@
             {% if user.is_authenticated %}
                 <p>Здравствуйте, {{ user.first_name|default:user.username }}!</p>
             {% else %}
-                <a href="{% url 'register' %}" class="btn btn-primary" id="registerBtn">Зарегистрироваться</a>
+                <button class="btn btn-primary" id="registerBtn">Зарегистрироваться</button>
             {% endif %}
+        </div>
+    </div>
+
+    <!-- Кнопка входа/выхода -->
+    <div class="container mt-5 text-center">
+        <div class="d-flex justify-content-center">
+            {% if user.is_authenticated %}
+                <form action="{% url 'authapp:logout' %}?next=/" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Выйти</button>
+                </form>
+            {% else %}
+                <button class="btn btn-primary" id="loginBtn">Войти</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Модельное окно для входа -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-center position-relative">
+                    <h5 class="modal-title">Вход</h5>
+                    <button type="button" class="btn-close position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="loginForm" data-login-url="{% url 'authapp:login' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label d-flex justify-content-center">Email</label>
+                            <input type="email" class="form-control text-center" id="loginEmail" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label d-flex justify-content-center">Пароль</label>
+                            <input type="password" class="form-control text-center" id="loginPassword" name="password" required>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <button type="submit" class="btn btn-primary">Войти</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -116,18 +159,14 @@
         </div>
     </div>
 
+
     <!-- Скрипт для открытия модального окна -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("registerBtn").addEventListener("click", function() {
-                var registerModal = new bootstrap.Modal(document.getElementById("registerModal"));
-                registerModal.show();
-            });
-        });
-    </script>
+    <script src="{% static 'js/modal-register.js' %}"></script>
 
     <!-- Подключение кастомных скриптов -->
     <script src="{% static 'js/register.js' %}"></script>
+    <script src="{% static 'js/auth.js' %}"></script>
+    <script src="{% static 'js/login.js' %}"></script>
 
 </body>
 </html>

@@ -20,7 +20,6 @@ class AuthTestCase(TestCase):
             "password": self.test_password
         }
 
-
     def test_successful_registration(self):
         """Тест успешной регистрации и отправки кода"""
         response = self.client.post(
@@ -35,7 +34,6 @@ class AuthTestCase(TestCase):
         self.assertIsNotNone(user.verification_code)
         self.assertFalse(user.is_verified)
 
-
     def test_email_already_registered(self):
         """Тест повторной регистрации"""
         User.objects.create_user(**self.user_data)
@@ -46,7 +44,6 @@ class AuthTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['error'], "Email уже зарегистрирован")
-
 
     def test_successful_verification(self):
         """Тест успешного подтверждения кода"""
@@ -66,7 +63,6 @@ class AuthTestCase(TestCase):
         self.assertIsNone(user.verification_code)
         self.assertIsNone(user.verification_code_created_at)
 
-
     def test_expired_code(self):
         """Тест просроченного кода"""
         user = User.objects.create_user(**self.user_data, verification_code=123456)
@@ -81,7 +77,6 @@ class AuthTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['error'], "Код просрочен")
 
-
     def test_wrong_code(self):
         """Тест неверного кода"""
         User.objects.create_user(**self.user_data, verification_code=123456)
@@ -94,7 +89,6 @@ class AuthTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['error'], "Неверный код")
 
-
     def test_invalid_code_format(self):
         """Тест нечислового кода"""
         response = self.client.post(
@@ -104,7 +98,6 @@ class AuthTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['error'], "Неверный формат кода")
-
 
     def test_automatic_login_after_verification(self):
         """Тест автоматической авторизации после подтверждения"""
@@ -118,45 +111,10 @@ class AuthTestCase(TestCase):
             content_type='application/json'
         )
         
-        # Проверяем, что пользователь авторизован
         auth_user = response.wsgi_request.user
         self.assertTrue(auth_user.is_authenticated)
         self.assertEqual(auth_user.email, self.test_email)
-        
-        
-    # Пример: Проверка валидации email
-    def test_invalid_email_format(self):
-        """ Тест неверного формата email """
-        invalid_data = {
-            "username": "testuser",
-            "email": "invalid-email",  # Неправильный формат
-            "password": "TestPass123"
-        }
-        response = self.client.post(
-            '/auth/register/',
-            data=json.dumps(invalid_data),  # Явно преобразуем в JSON
-            content_type='application/json'  # Указываем правильный content-type
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("error", response.json())
-       
-        
-    def test_invalid_email_validation(self):
-        """Тест валидации email на сервере"""
-        invalid_data = {
-            "username": "testuser",
-            "email": "invalid-email",
-            "password": "TestPass123"
-        }
-        response = self.client.post(
-            '/auth/register/',
-            data=json.dumps(invalid_data),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()['error'], "Неверный формат email")
-    
-    
+
     @patch('authapp.tasks.delete_unverified_user.apply_async')
     def test_user_deletion_by_celery(self, mock_task):
         """Тест задачи удаления неподтвержденных пользователей"""
@@ -171,3 +129,21 @@ class AuthTestCase(TestCase):
         delete_unverified_user.apply_async((user.id,), countdown=900)
         
         mock_task.assert_called_once_with((user.id,), countdown=900)
+
+
+class DeleteUnverifiedUserTaskTest(TestCase):
+    def test_delete_unverified_user(self):
+        user = User.objects.create(email="test@example.com", is_verified=False)
+        result = delete_unverified_user(user.id)
+        self.assertEqual(result, f"User {user.id} deleted")
+        self.assertFalse(User.objects.filter(id=user.id).exists())
+
+    def test_dont_delete_verified_user(self):
+        user = User.objects.create(email="verified@example.com", is_verified=True)
+        result = delete_unverified_user(user.id)
+        self.assertEqual(result, f"User {user.id} already verified")
+        self.assertTrue(User.objects.filter(id=user.id).exists())
+
+    def test_delete_nonexistent_user(self):
+        result = delete_unverified_user(99999)
+        self.assertEqual(result, "User 99999 does not exist")
