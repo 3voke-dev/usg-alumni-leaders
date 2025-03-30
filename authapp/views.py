@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.http import JsonResponse
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -124,4 +125,4 @@ def user_login(request):
 
 def user_logout(request):
     logout(request)
-    return JsonResponse({"status": "success", "message": "Вы вышли из системы"})
+    return redirect("/")
