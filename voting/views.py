@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Count, F
 from django.utils.timezone import now
-from .models import Candidate, Vote, Election, Category
+from .models import Candidate, Vote, Election
 
 def voting_results(request, election_id):
     results = (
@@ -37,16 +37,23 @@ def election_detail(request, election_id):
     candidates = Candidate.objects.filter(election=election)
     return render(request, "elections/detail.html", {"election": election, "candidates": candidates})
 
-def vote(request, election_id, category_id, candidate_id):
+def vote(request, election_id, candidate_id):
     if not request.user.is_authenticated:
         return JsonResponse({"error": "Вы должны быть авторизованы"}, status=401)
 
     election = get_object_or_404(Election, id=election_id)
-    category = get_object_or_404(Category, id=category_id, election=election)
     candidate = get_object_or_404(Candidate, id=candidate_id, election=election)
-    
-    if Vote.objects.filter(user_email=request.user.email, election=election, category=category).exists():
+
+    # Проверяем, голосовал ли пользователь
+    if Vote.objects.filter(user_email=request.user.email, election=election).exists():
         return JsonResponse({"error": "Вы уже проголосовали в этой номинации"}, status=400)
-    
-    Vote.objects.create(user_email=request.user.email, voted_at=now(), candidate=candidate, election=election, category=category)
-    return JsonResponse({"message": "Ваш голос учтён"})
+
+    # Создаём голос
+    Vote.objects.create(
+        user_email=request.user.email,
+        voted_at=now(),
+        candidate=candidate,
+        election=election,
+    )
+
+    return JsonResponse({"message": "Ваш голос учтён!"})

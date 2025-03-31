@@ -36,24 +36,17 @@ class Candidate(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.name} ({self.election.title})"
+        return self.name
     
-class Category(models.Model):
-    name = models.CharField(max_length=255)
-    election = models.ForeignKey(Election, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.name} ({self.election.title})"
     
 class Vote(models.Model):
     election = models.ForeignKey(Election, on_delete=models.CASCADE, related_name="votes")
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="votes")
     user_email = models.EmailField()
     voted_at = models.DateTimeField(auto_now_add=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     
     class Meta:
-        unique_together = ('election', 'category', 'user_email')
+        unique_together = ('election', 'user_email')
 
     def __str__(self):
-        return f"Vote: {self.user_email} -> {self.candidate.name} ({self.category.name})"
+        return f"Vote: {self.user_email} -> {self.candidate.name}"

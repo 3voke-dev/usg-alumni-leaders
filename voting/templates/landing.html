@@ -104,13 +104,33 @@
                             <p class="description">
                                 {{ candidate.bio|default:'' }}
                             </p>
-                            <a href="#" class="btn vote-btn">Голосовать</a>
+                            <button class="vote-btn btn btn-primary"
+                                    data-election="{{ election.id }}"
+                                    data-candidate="{{ candidate.id }}">
+                                Голосовать
+                            </button>
+                            <div id="vote-message"></div>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         {% endfor %}
+    </div>
+
+    <!-- Модальное окно "Ваш голос учтен"-->
+    <div class="modal fade" id="voteModal" tabindex="-1" aria-labelledby="voteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-center position-relative">
+                    <h5 class="modal-title" id="voteModalLabel">Уведомление</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Сообщение будет подставляться через JS -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Модальное окно регистрации -->
@@ -166,6 +186,8 @@
     <!-- Подключение кастомных скриптов -->
     <script src="{% static 'js/register.js' %}"></script>
     <script src="{% static 'js/auth.js' %}"></script>
+    <script src="{% static 'js/vote.js' %}"></script>
+
     {% comment %} <script src="{% static 'js/login.js' %}"></script> {% endcomment %}
 
 </body>

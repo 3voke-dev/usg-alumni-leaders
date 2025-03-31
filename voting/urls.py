@@ -8,7 +8,7 @@ urlpatterns = [
     path('elections/<int:election_id>/', election_detail, name='election_detail'),
     path('elections/', election_list, name='election_list'),
     path("", election_list, name="home"),
-    path("vote/<int:election_id>/<int:category_id>/<int:candidate_id>/", vote, name="vote"),
+    path("vote/<int:election_id>/<int:candidate_id>/", vote, name="vote"),
 ]
 
 if settings.DEBUG:
