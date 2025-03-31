@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import election_results, election_list, election_detail, vote
+from .views import election_results, election_list, election_detail, vote, get_candidates
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -9,6 +9,7 @@ urlpatterns = [
     path('elections/', election_list, name='election_list'),
     path("", election_list, name="home"),
     path("vote/<int:election_id>/<int:candidate_id>/", vote, name="vote"),
+    path('get_candidates/<int:election_id>/', get_candidates, name='get_candidates'),
 ]
 
 if settings.DEBUG:

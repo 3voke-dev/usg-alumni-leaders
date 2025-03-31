@@ -4,6 +4,7 @@ from django.db.models import Count, F
 from django.utils.timezone import now
 from .models import Candidate, Vote, Election
 
+
 def voting_results(request, election_id):
     results = (
         Candidate.objects
@@ -12,6 +13,7 @@ def voting_results(request, election_id):
         .values('id', 'name', 'vote_count')
     )
     return JsonResponse(list(results), safe=False)
+
 
 def election_results(request, election_id):
     try:
@@ -24,18 +26,22 @@ def election_results(request, election_id):
     except Election.DoesNotExist:
         return JsonResponse({"error": "Election not found"}, status=404)
 
+
 def election_list(request):
     elections = Election.objects.filter(is_active=True)
     return render(request, 'landing.html', {'elections': elections, 'user': request.user})
+
 
 def home(request):
     active_votings = Election.objects.filter(is_active=True)
     return render(request, 'landing.html', {'active_votings': active_votings})
 
+
 def election_detail(request, election_id):
     election = get_object_or_404(Election, id=election_id)
     candidates = Candidate.objects.filter(election=election)
     return render(request, "elections/detail.html", {"election": election, "candidates": candidates})
+
 
 def vote(request, election_id, candidate_id):
     if not request.user.is_authenticated:
@@ -57,3 +63,10 @@ def vote(request, election_id, candidate_id):
     )
 
     return JsonResponse({"message": "Ваш голос учтён!"})
+
+
+def get_candidates(request, election_id):
+    candidates = Candidate.objects.filter(election_id=election_id)
+    html = render(request, 'candidates.html', {'candidates': candidates}).content.decode('utf-8')
+
+    return JsonResponse({"success": True, "html": html})

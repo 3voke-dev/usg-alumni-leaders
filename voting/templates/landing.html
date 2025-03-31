@@ -48,7 +48,6 @@
                 <form action="{% url 'authapp:logout' %}?next=/" method="post">
                     {% csrf_token %}
                     <button class="btn btn-primary" id="loginBtn">Выйти</button>
-                    {% comment %} <button type="submit">Выйти</button> {% endcomment %}
                 </form>
             {% else %}
                 <button class="btn btn-primary" id="loginBtn">Войти</button>
@@ -85,41 +84,28 @@
         </div>
     </div>
 
-    <!-- Карточки кандидатов -->
+    <!-- Основной контент страницы -->
     <div class="container mt-5">
-        {% for election in elections %}
-            <h2 class="text-primary">{{ election.title }}</h2>
-            <p><strong>Период:</strong> {{ election.start_date }} - {{ election.end_date }}</p>
+        <h2 class="text-center">Выберите номинацию</h2>
+        <div class="list-group">
+            {% for election in elections %}
+            <button class="list-group-item list-group-item-action election-btn" data-election-id="{{ election.id }}">
+                {{ election.title }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
 
-            <div class="row">
-                {% for candidate in election.candidates.all %}
-                <div class="col-md-4 fade-in">
-                    <div class="card candidate-card mb-4">
-                        {% if candidate.photo %}
-                            <img src="{{ candidate.photo.url }}" class="card-img-top" alt="{{ candidate.name }}">
-                        {% else %}
-                            <img src="{% static 'images/default.jpg' %}" class="card-img-top" alt="No Photo">
-                        {% endif %}
-                        <div class="card-body text-center">
-                            <h5 class="card-title">{{ candidate.name }}</h5>
-                            <p class="description">
-                                {{ candidate.bio|default:'' }}
-                            </p>
-                            <button class="vote-btn btn btn-primary"
-                                    data-election="{{ election.id }}"
-                                    data-candidate="{{ candidate.id }}">
-                                Голосовать
-                            </button>
-                            <div id="vote-message"></div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+    <!-- Отдельный контейнер для списка кандидатов -->
+    <div id="candidates-container">
+        {% for election in elections %}
+        <div class="candidates-list mt-2" id="candidates-{{ election.id }}" style="display: none;">
+            <!-- Сюда загружаются кандидаты -->
+        </div>
         {% endfor %}
     </div>
 
-    <!-- Модальное окно "Ваш голос учтен"-->
+    <!-- Модальное окно "Ваш голос учтен" -->
     <div class="modal fade" id="voteModal" tabindex="-1" aria-labelledby="voteModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -127,7 +113,7 @@
                     <h5 class="modal-title" id="voteModalLabel">Уведомление</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body text-center">
                     <!-- Сообщение будет подставляться через JS -->
                 </div>
             </div>
@@ -188,6 +174,7 @@
     <script src="{% static 'js/register.js' %}"></script>
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/vote.js' %}"></script>
+    <script src="{% static 'js/cards.js' %}"></script>
 
     {% comment %} <script src="{% static 'js/login.js' %}"></script> {% endcomment %}
 

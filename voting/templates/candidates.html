@@ -1,0 +1,23 @@
+{% load static %}
+{% for candidate in candidates %}
+    <div class="col-md-4 fade-in">
+        <div class="card candidate-card mb-4">
+            {% if candidate.photo %}
+                <img src="{{ candidate.photo.url }}" class="card-img-top" alt="{{ candidate.name }}">
+            {% else %}
+                <img src="{% static 'images/default.jpg' %}" class="card-img-top" alt="No Photo">
+            {% endif %}
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ candidate.name }}</h5>
+                <p class="description">{{ candidate.bio|default:'' }}</p>
+                <button class="vote-btn btn btn-primary"
+                        data-election="{{ candidate.election.id }}"
+                        data-candidate="{{ candidate.id }}">
+                    Голосовать
+                </button>
+            </div>
+        </div>
+    </div>
+{% empty %}
+    <p>Кандидатов нет.</p>
+{% endfor %}
