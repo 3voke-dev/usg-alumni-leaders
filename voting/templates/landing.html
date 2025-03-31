@@ -47,7 +47,8 @@
             {% if user.is_authenticated %}
                 <form action="{% url 'authapp:logout' %}?next=/" method="post">
                     {% csrf_token %}
-                    <button type="submit">Выйти</button>
+                    <button class="btn btn-primary" id="loginBtn">Выйти</button>
+                    {% comment %} <button type="submit">Выйти</button> {% endcomment %}
                 </form>
             {% else %}
                 <button class="btn btn-primary" id="loginBtn">Войти</button>
