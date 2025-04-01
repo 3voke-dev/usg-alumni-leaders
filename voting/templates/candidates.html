@@ -1,7 +1,7 @@
 {% load static %}
-{% for candidate in candidates %}
-    <div class="col-md-4 fade-in">
-        <div class="card candidate-card mb-4">
+<div class="candidates-container">
+    {% for candidate in candidates %}
+        <div class="candidate-card fade-in">
             {% if candidate.photo %}
                 <img src="{{ candidate.photo.url }}" class="card-img-top" alt="{{ candidate.name }}">
             {% else %}
@@ -17,7 +17,7 @@
                 </button>
             </div>
         </div>
-    </div>
-{% empty %}
-    <p>Кандидатов нет.</p>
-{% endfor %}
+    {% empty %}
+        <p>Кандидатов нет.</p>
+    {% endfor %}
+</div>

@@ -13,6 +13,7 @@ class Election(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     is_active = models.BooleanField(default=True)
+    photo = models.ImageField(upload_to='photos/', default='default-election.jpg', blank=True, null=True)
 
     def clean(self):
         if self.start_date and self.end_date and self.start_date >= self.end_date:
@@ -29,7 +30,7 @@ class Candidate(models.Model):
     election = models.ForeignKey(Election, on_delete=models.CASCADE, related_name="candidates")
     name = models.CharField(max_length=255)
     bio = models.TextField(blank=True, null=True)
-    photo = models.ImageField(upload_to='photos/', default='default.jpg', blank=True, null=True)
+    photo = models.ImageField(upload_to='photos/', default='default-candidate.jpg', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.clean()  # Вызов валидации перед сохранением

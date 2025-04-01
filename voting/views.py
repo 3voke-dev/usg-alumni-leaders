@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Count, F
+from django.db import models
 from django.utils.timezone import now
 from .models import Candidate, Vote, Election
 

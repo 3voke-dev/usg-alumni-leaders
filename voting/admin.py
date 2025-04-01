@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin import RelatedOnlyFieldListFilter
 from .models import Election, Candidate, Vote
 import csv
 from django.http import HttpResponse
@@ -12,9 +13,10 @@ class CandidateInline(admin.TabularInline):  # Или admin.StackedInline
 
 @admin.register(Election)
 class ElectionAdmin(admin.ModelAdmin):
-    list_display = ("title", "start_date", "end_date", "is_active")
+    list_display = ("id", "title", "start_date", "end_date", "is_active")
     list_filter = (("start_date", admin.DateFieldListFilter), "is_active")
     search_fields = ("title",)
+    fields = ("title", "description", "photo", "start_date", "end_date", "is_active")
     ordering = ("-start_date",)
     inlines = [CandidateInline]
     actions = ["reset_votes", "make_votings_active", "make_votings_inactive"]  # <-- Теперь все методы внутри класса
@@ -36,8 +38,8 @@ class ElectionAdmin(admin.ModelAdmin):
 
 @admin.register(Candidate)
 class CandidateAdmin(admin.ModelAdmin):
-    list_display = ("name", "election", "votes_count")
-    list_filter = ("election",)
+    list_display = ("id", "name", "election", "votes_count")
+    list_filter = ("election", "name")  # Фильтрация по Election и имени
     search_fields = ("name",)
     actions = ["export_candidates_to_csv", "export_candidates_to_excel"]
 
