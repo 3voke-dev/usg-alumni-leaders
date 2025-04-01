@@ -4,7 +4,12 @@ from .models import Election, Candidate, Vote
 import csv
 from django.http import HttpResponse
 from openpyxl import Workbook
-
+from django.utils.safestring import mark_safe
+from django.urls import reverse
+from django.template.response import TemplateResponse
+import json
+from django.db.models import Count  # Add this import
+from collections import defaultdict
 
 class CandidateInline(admin.TabularInline):  # Или admin.StackedInline
     model = Candidate
@@ -34,6 +39,22 @@ class ElectionAdmin(admin.ModelAdmin):
         for election in queryset:
             Vote.objects.filter(election=election).delete()
         self.message_user(request, "Голоса успешно сброшены!")
+
+    def changelist_view(self, request, extra_context=None):
+        # Подготовка данных для графиков
+        elections = Election.objects.prefetch_related("candidates")
+        chart_data = defaultdict(lambda: {"labels": [], "data": []})
+
+        for election in elections:
+            for candidate in election.candidates.all():
+                chart_data[election.title]["labels"].append(candidate.name)
+                chart_data[election.title]["data"].append(candidate.votes.count())
+
+        # Передаем данные в контекст
+        extra_context = extra_context or {}
+        extra_context["chart_data"] = json.dumps(chart_data)  # Данные обновляются динамически
+
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 @admin.register(Candidate)

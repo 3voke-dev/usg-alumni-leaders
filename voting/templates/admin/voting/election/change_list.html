@@ -1,0 +1,85 @@
+<!-- filepath: /mnt/ssd2/VSCode-projects/dev/usg-alumni-leaders/voting/templates/admin/voting/election/change_list.html -->
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="chart-container" style="margin-top: 20px;">
+        <h2 style="text-align: center;">Статистика</h2>
+        <div id="charts" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+            <!-- Графики будут добавлены через JavaScript -->
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const chartData = {{ chart_data|safe }};
+        const chartsContainer = document.getElementById('charts');
+
+        Object.keys(chartData).forEach((electionTitle, index) => {
+            // Создаем контейнер для каждого графика
+            const chartWrapper = document.createElement('div');
+            chartWrapper.style.width = '300px';  // Ограничиваем ширину графика
+            chartWrapper.style.height = '300px'; // Ограничиваем высоту графика
+            chartWrapper.style.background = '#fff';
+            chartWrapper.style.border = '1px solid #ddd';
+            chartWrapper.style.borderRadius = '8px';
+            chartWrapper.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            chartWrapper.style.padding = '10px';
+            chartWrapper.style.textAlign = 'center';
+
+            const chartTitle = document.createElement('h4');
+            chartTitle.textContent = electionTitle;
+            chartTitle.style.marginBottom = '10px';
+            chartTitle.style.color = '#000';  // Устанавливаем черный цвет текста
+
+            const canvas = document.createElement('canvas');
+            canvas.id = `chart-${index}`;
+            canvas.style.maxWidth = '100%';
+            canvas.style.height = '200px';
+
+            chartWrapper.appendChild(chartTitle);
+            chartWrapper.appendChild(canvas);
+            chartsContainer.appendChild(chartWrapper);
+
+            // Рендерим график
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData[electionTitle].labels,
+                    datasets: [{
+                        label: 'Голоса',
+                        data: chartData[electionTitle].data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderWidth: 1,
+                            borderColor: '#ddd',
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#eaeaea'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
