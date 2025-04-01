@@ -28,6 +28,18 @@
     <!-- Хедер -->
     <header class="hero">
         <h1>Выборы USG Alumni Leaders</h1>
+        <p>Присоединяйтесь к голосованию и выберите лучших лидеров!</p>
+        <div class="hero-buttons">
+            {% if user.is_authenticated %}
+                <form action="{% url 'authapp:logout' %}?next=/" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-secondary">Выйти</button>
+                </form>
+            {% else %}
+                <button class="btn btn-primary" id="registerBtn">Зарегистрироваться</button>
+                <button class="btn btn-secondary" id="loginBtn">Войти</button>
+            {% endif %}
+        </div>
     </header>
 
     <!-- Кнопка регистрации -->
