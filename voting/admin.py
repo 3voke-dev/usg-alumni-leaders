@@ -10,6 +10,12 @@ from django.template.response import TemplateResponse
 import json
 from django.db.models import Count  # Add this import
 from collections import defaultdict
+from voting.models import Election
+
+@admin.action(description="Сбросить все номинации и кандидатов")
+def reset_elections_and_candidates(modeladmin, request, queryset):
+    Election.reset_elections_and_candidates()
+    modeladmin.message_user(request, "Все номинации и кандидаты удалены, индексация сброшена.")
 
 class CandidateInline(admin.TabularInline):  # Или admin.StackedInline
     model = Candidate
@@ -24,7 +30,7 @@ class ElectionAdmin(admin.ModelAdmin):
     fields = ("title", "description", "photo", "start_date", "end_date", "is_active")
     ordering = ("-start_date",)
     inlines = [CandidateInline]
-    actions = ["reset_votes", "make_votings_active", "make_votings_inactive"]  # <-- Теперь все методы внутри класса
+    actions = ["reset_votes", "make_votings_active", "make_votings_inactive", reset_elections_and_candidates]  # <-- Теперь все методы внутри класса
 
     @admin.action(description="Сделать выбранные голосования активными")
     def make_votings_active(self, request, queryset):

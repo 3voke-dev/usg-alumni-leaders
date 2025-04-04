@@ -37,7 +37,7 @@ msgstr ""
 
 #: voting/templates/landing.html:40
 msgid "Выйти"
-msgstr ""
+msgstr "Выйти"
 
 #: voting/templates/landing.html:43
 msgid "Зарегистрироваться"

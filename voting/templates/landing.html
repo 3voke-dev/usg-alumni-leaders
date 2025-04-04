@@ -24,42 +24,65 @@
     </script>
 </head>
 <body>
-
     <!-- Хедер -->
-    <header class="hero">
-        <div class="container d-flex justify-content-between align-items-center">
-            <div>
-                <h1>{% trans "Церемония USG Alumni Leaders" %}</h1>
-                <p>{% trans "Присоединяйтесь к голосованию и выберите лучших лидеров!" %}</p>
-            </div>
-            <div class="hero-buttons text-end">
-                {% if user.is_authenticated %}
-                    <p class="greeting-text">{% trans "Здравствуйте" %}, {{ user.first_name|default:user.username }}!</p>
-                    <form action="{% url 'authapp:logout' %}?next=/" method="post">
-                        {% csrf_token %}
-                        <button class="btn btn-secondary">{% trans "Выйти" %}</button>
-                    </form>
-                {% else %}
-                    <button class="btn btn-primary" id="registerBtn">{% trans "Зарегистрироваться" %}</button>
-                    <button class="btn btn-secondary" id="loginBtn">{% trans "Войти" %}</button>
-                {% endif %}
+    <header class="header d-flex justify-content-between align-items-center px-4 py-3">
+        <div class="d-flex align-items-center">
+            <div class="logo me-3">{% trans "LOGO" %}</div>
+            <div class="language-switcher d-flex gap-2">
+                <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" name="language" value="ru" class="btn btn-outline-secondary btn-sm">{% trans "Rus" %}</button>
+                </form>
+                <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" name="language" value="en" class="btn btn-outline-secondary btn-sm">{% trans "Eng" %}</button>
+                </form>
+                <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" name="language" value="kk" class="btn btn-outline-secondary btn-sm">{% trans "Kaz" %}</button>
+                </form>
             </div>
         </div>
-        <div class="language-switcher text-end mt-3">
-            <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" name="language" value="ru" class="btn btn-outline-secondary btn-sm">{% trans "Русский" %}</button>
-            </form>
-            <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" name="language" value="en" class="btn btn-outline-secondary btn-sm">{% trans "English" %}</button>
-            </form>
-            <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" name="language" value="kk" class="btn btn-outline-secondary btn-sm">{% trans "Қазақша" %}</button>
-            </form>
-        </div>
+        <nav class="menu d-flex gap-3">
+            {% if user.is_authenticated %}
+                <form action="{% url 'authapp:logout' %}?next=/" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-light btn-sm">{% trans "Выйти" %}</button>
+                </form>
+            {% else %}
+                <button class="btn btn-outline-light btn-sm" id="registerBtn">{% trans "Зарегистрироваться" %}</button>
+                <button class="btn btn-outline-light btn-sm" id="loginBtn">{% trans "Войти" %}</button>
+            {% endif %}
+        </nav>
     </header>
+
+    <!-- Фото и обратный отсчет -->
+    <section class="photo-section">
+        <div class="photo-placeholder">
+            <img src="{% static 'images/background.png' %}" alt="Placeholder" class="img-fluid">
+            <div class="photo-text">
+                <h1>{% trans "Добро пожаловать на сайт USG Alumni Leaders" %}</h1>
+                <p>{% trans "Здесь вы можете выбрать лучших лидеров и проголосовать за них." %}</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="countdown mt-4 p-3">
+        <section class="countday">
+            <p>{% trans "Обратный отсчет дней" %}</p>
+            <h1 id="daysRemaining">30</h1>
+            <p>{% trans "ДНЕЙ ДО МЕРОПРИЯТИЯ" %}</p>
+        </section>
+        <!-- О нас -->
+        <section class="about-section text-center py-5">
+            <h2>{% trans "ABOUT USG ALUMNI" %}</h2>
+        </section>
+        <section class="countday-flag">
+            <img src="{% static 'images/flag.png' %}" alt="Flag" class="img-fluid">
+        </section>
+    </div>
+
+    </div>
 
     <!-- Модельное окно для входа -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
@@ -95,29 +118,31 @@
         <h2 class="text-center">{% trans "Выберите номинацию" %}</h2>
         <div class="candidates-container">
             {% for election in elections %}
-            <div class="candidate-card fade-in">
-                {% if election.photo %}
-                <img src="{{ election.photo.url }}" class="card-img-top" alt="{{ election.title }}">
+                {% if forloop.counter0|divisibleby:3 %}
+                    <!-- Открываем новую группу только если есть карточки -->
+                    <div class="group d-flex flex-wrap gap-3">
                 {% endif %}
-                <div class="card-body text-center">
-                    <h5 class="card-title">{{ election.title }}</h5>
-                    <p class="description">{{ election.description|default:"" }}</p>
-                    <button class="btn btn-primary election-btn" data-election-id="{{ election.id }}">
-                        {% trans "Посмотреть кандидатов" %}
-                    </button>
+
+                <div class="candidate-card fade-in">
+                    {% if election.photo %}
+                        <img src="{{ election.photo.url }}" class="card-img-top" alt="{{ election.title }}">
+                    {% endif %}
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ election.title }}</h5>
+                        <p class="description">{{ election.description|default:"" }}</p>
+                        <button class="btn btn-primary election-btn" data-election-id="{{ election.id }}">
+                            {% trans "Посмотреть кандидатов" %}
+                        </button>
+                    </div>
+                    <!-- Контейнер кандидатов внутри карточки -->
+                    <div class="candidates-list mt-2" id="candidates-{{ election.id }}" style="display: none;"></div>
                 </div>
-            </div>
+
+                {% if forloop.counter|divisibleby:3 or forloop.last %}
+                    </div> <!-- Закрываем .group -->
+                {% endif %}
             {% endfor %}
         </div>
-    </div>
-
-    <!-- Отдельный контейнер для списка кандидатов -->
-    <div id="candidates-container">
-        {% for election in elections %}
-        <div class="candidates-list mt-2" id="candidates-{{ election.id }}" style="display: none;">
-            <!-- Сюда загружаются кандидаты -->
-        </div>
-        {% endfor %}
     </div>
 
     <!-- Модальное окно "Ваш голос учтен" -->
@@ -182,7 +207,7 @@
     </div> <!-- Закрытие модального окна регистрации -->
 
     <!-- Футер -->
-    <footer class="footer bg-dark text-white py-4 mt-auto">
+    <footer class="footer text-white py-4 mt-auto">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
@@ -213,6 +238,7 @@
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/vote.js' %}"></script>
     <script src="{% static 'js/cards.js' %}"></script>
+    <script src="{% static 'js/countday.js' %}"></script>
 
     <!-- <script src="{% static 'js/login.js' %}"></script> -->
 

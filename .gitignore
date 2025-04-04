@@ -7,6 +7,8 @@ staticfiles/
 static/
 media/
 тз.md
+template-design.jpeg
+copy.html
 
 # Virtual Environment
 .venv/
