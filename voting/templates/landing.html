@@ -24,36 +24,50 @@
     </script>
 </head>
 <body>
+
     <!-- Хедер -->
-    <header class="header d-flex justify-content-between align-items-center px-4 py-3">
-        <div class="d-flex align-items-center">
-            <div class="logo me-3">{% trans "LOGO" %}</div>
-            <div class="language-switcher d-flex gap-2">
-                <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" name="language" value="ru" class="btn btn-outline-secondary btn-sm">{% trans "Rus" %}</button>
-                </form>
-                <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" name="language" value="en" class="btn btn-outline-secondary btn-sm">{% trans "Eng" %}</button>
-                </form>
-                <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" name="language" value="kk" class="btn btn-outline-secondary btn-sm">{% trans "Kaz" %}</button>
-                </form>
+    <header class="header">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                <div class="logo me-3">{% trans "LOGO" %}</div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% trans "Язык" %}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                        <li>
+                            <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" name="language" value="ru" class="dropdown-item">{% trans "Русский" %}</button>
+                            </form>
+                        </li>
+                        <li>
+                            <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" name="language" value="en" class="dropdown-item">{% trans "Английский" %}</button>
+                            </form>
+                        </li>
+                        <li>
+                            <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" name="language" value="kk" class="dropdown-item">{% trans "Казахский" %}</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
+            <nav class="menu">
+                {% if user.is_authenticated %}
+                    <form action="{% url 'authapp:logout' %}?next=/" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-light btn-sm">{% trans "Выход" %}</button>
+                    </form>
+                {% else %}
+                    <button class="btn btn-outline-light btn-sm" id="registerBtn">{% trans "Зарегистрироваться" %}</button>
+                    <button class="btn btn-outline-light btn-sm" id="loginBtn">{% trans "Войти" %}</button>
+                {% endif %}
+            </nav>
         </div>
-        <nav class="menu d-flex gap-3">
-            {% if user.is_authenticated %}
-                <form action="{% url 'authapp:logout' %}?next=/" method="post" class="d-inline">
-                    {% csrf_token %}
-                    <button class="btn btn-outline-light btn-sm">{% trans "Выйти" %}</button>
-                </form>
-            {% else %}
-                <button class="btn btn-outline-light btn-sm" id="registerBtn">{% trans "Зарегистрироваться" %}</button>
-                <button class="btn btn-outline-light btn-sm" id="loginBtn">{% trans "Войти" %}</button>
-            {% endif %}
-        </nav>
     </header>
 
     <!-- Фото и обратный отсчет -->
@@ -67,22 +81,49 @@
         </div>
     </section>
 
-    <div class="countdown mt-4 p-3">
-        <section class="countday">
+    <div class="countdown">
+        <div class="countday">
             <p>{% trans "Обратный отсчет дней" %}</p>
             <h1 id="daysRemaining">30</h1>
             <p>{% trans "ДНЕЙ ДО МЕРОПРИЯТИЯ" %}</p>
-        </section>
+        </div>
         <!-- О нас -->
         <section class="about-section text-center py-5">
-            <h2>{% trans "ABOUT USG ALUMNI" %}</h2>
+            <div class="container">
+                <h2>{% trans "Приветствуем вас на ежегодной церемонии голосования USG Alumni Leaders in Action! Эта уникальная платформа создана специально для того, чтобы выпускники могли выбрать самых достойных, талантливых и выдающихся представителей в 9 ключевых номинациях. Ваш голос имеет огромное значение и поможет определить лидеров, которые будут представлять интересы нашего сообщества, вдохновлять других и вносить значительный вклад в развитие в 2025 году. Присоединяйтесь к нам и станьте частью этого важного события!"%}</h2>
+            </div>
         </section>
         <section class="countday-flag">
             <img src="{% static 'images/flag.png' %}" alt="Flag" class="img-fluid">
         </section>
     </div>
 
-    </div>
+    <!-- Спонсоры -->
+    <section class="sponsors-section">
+        <h2>{% trans "OUR SPONSORS" %}</h2>
+        <div class="sponsor-card"></div>
+        <div class="sponsor-card"></div>
+        <div class="sponsor-card"></div>
+    </section>
+
+    <!-- Расписание -->
+    <section class="event-agenda">
+        <h2>{% trans "EVENT AGENDA" %}</h2>
+        <p>18:00...</p>
+    </section>
+
+    <!-- Галерея -->
+    <section class="event-gallery">
+        <h2>{% trans "EVENT GALLERY" %}</h2>
+        <div class="gallery-card"></div>
+        <div class="gallery-card"></div>
+        <div class="gallery-card"></div>
+    </section>
+
+    <!-- Карта и контакты -->
+    <section class="map-contacts">
+        <h2>{% trans "MAP, CONTACTS, HOW TO GET" %}</h2>
+    </section>
 
     <!-- Модельное окно для входа -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
@@ -114,34 +155,23 @@
     </div>
 
     <!-- Основной контент страницы -->
-    <div class="container mt-5">
-        <h2 class="text-center">{% trans "Выберите номинацию" %}</h2>
-        <div class="candidates-container">
+    <div class="nomination-candidate-container">
+        <!-- Колонка номинаций -->
+        <div class="nomination-column">
             {% for election in elections %}
-                {% if forloop.counter0|divisibleby:3 %}
-                    <!-- Открываем новую группу только если есть карточки -->
-                    <div class="group d-flex flex-wrap gap-3">
-                {% endif %}
-
-                <div class="candidate-card fade-in">
+                <div class="nomination-card election-btn" data-election-id="{{ election.id }}">
                     {% if election.photo %}
-                        <img src="{{ election.photo.url }}" class="card-img-top" alt="{{ election.title }}">
+                        <img src="{{ election.photo.url }}" alt="{{ election.title }}">
                     {% endif %}
-                    <div class="card-body text-center">
-                        <h5 class="card-title">{{ election.title }}</h5>
-                        <p class="description">{{ election.description|default:"" }}</p>
-                        <button class="btn btn-primary election-btn" data-election-id="{{ election.id }}">
-                            {% trans "Посмотреть кандидатов" %}
-                        </button>
-                    </div>
-                    <!-- Контейнер кандидатов внутри карточки -->
-                    <div class="candidates-list mt-2" id="candidates-{{ election.id }}" style="display: none;"></div>
+                    <h5 class="card-title">{{ election.title }}</h5>
+                    <p class="description">{{ election.description|default:"" }}</p>
                 </div>
-
-                {% if forloop.counter|divisibleby:3 or forloop.last %}
-                    </div> <!-- Закрываем .group -->
-                {% endif %}
             {% endfor %}
+        </div>
+
+        <!-- Колонка кандидатов -->
+        <div class="candidate-column" id="candidates-section">
+            <!-- Кандидаты будут загружаться динамически -->
         </div>
     </div>
 

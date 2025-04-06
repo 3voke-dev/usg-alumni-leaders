@@ -1,0 +1,11 @@
+{% for candidate in candidates %}
+    <div class="candidate-card">
+        {% if candidate.photo %}
+            <img src="{{ candidate.photo.url }}" alt="{{ candidate.name }}">
+        {% endif %}
+        <div class="card-body">
+            <h5>{{ candidate.name }}</h5>
+            <p>{{ candidate.bio|default:"" }}</p>
+        </div>
+    </div>
+{% endfor %}

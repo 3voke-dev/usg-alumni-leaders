@@ -55,10 +55,6 @@ class Candidate(models.Model):
     bio = models.TextField(blank=True, null=True)
     photo = models.ImageField(upload_to='photos/', default='default-candidate.jpg', blank=True, null=True)
 
-    def save(self, *args, **kwargs):
-        self.clean()  # Вызов валидации перед сохранением
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return self.name
     

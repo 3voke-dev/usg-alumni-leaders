@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.db.models import Count, F
 from django.db import models
 from django.utils.timezone import now
+from django.template.loader import get_template, TemplateDoesNotExist
+from django.template import TemplateSyntaxError
 from .models import Candidate, Vote, Election
 
 
@@ -67,7 +69,36 @@ def vote(request, election_id, candidate_id):
 
 
 def get_candidates(request, election_id):
-    candidates = Candidate.objects.filter(election_id=election_id)
-    html = render(request, 'candidates.html', {'candidates': candidates}).content.decode('utf-8')
+    try:
+        # Проверяем, существует ли выборы
+        election = get_object_or_404(Election, id=election_id)
+        print(f"Выборы найдены: {election.title}")
 
-    return JsonResponse({"success": True, "html": html})
+        # Получаем кандидатов для выборов
+        candidates = Candidate.objects.filter(election=election)
+        print(f"Найдено кандидатов: {candidates.count()}")
+
+        # Проверяем, есть ли кандидаты
+        if not candidates.exists():
+            return JsonResponse({'success': False, 'error': 'Кандидаты не найдены'}, status=404)
+
+        # Проверяем существование шаблона
+        try:
+            template = get_template('partials/candidates_list.html')
+            print(f"Шаблон найден: {template.origin.name}")
+        except TemplateDoesNotExist as e:
+            print(f"Шаблон не найден: {e}")
+            return JsonResponse({'success': False, 'error': f'Шаблон не найден: {e}'}, status=500)
+        except TemplateSyntaxError as e:
+            print(f"Ошибка в синтаксисе шаблона: {e}")
+            return JsonResponse({'success': False, 'error': f'Ошибка в синтаксисе шаблона: {e}'}, status=500)
+
+        # Рендерим HTML для списка кандидатов
+        html = render(request, 'partials/candidates_list.html', {'candidates': candidates}).content.decode('utf-8')
+        print("HTML успешно сгенерирован")
+
+        return JsonResponse({'success': True, 'html': html})
+    except Exception as e:
+        # Логируем ошибку и возвращаем сообщение об ошибке
+        print(f"Ошибка загрузки кандидатов: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
