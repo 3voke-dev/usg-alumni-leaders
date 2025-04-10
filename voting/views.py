@@ -31,8 +31,11 @@ def election_results(request, election_id):
 
 
 def election_list(request):
-    elections = Election.objects.filter(is_active=True)
-    return render(request, 'landing.html', {'elections': elections, 'user': request.user})
+    elections = Election.objects.filter(is_active=True)  # Получаем список активных выборов
+    return render(request, 'landing.html', {
+        'elections': elections,
+        'user': request.user
+    })
 
 
 def home(request):
@@ -70,35 +73,26 @@ def vote(request, election_id, candidate_id):
 
 def get_candidates(request, election_id):
     try:
-        # Проверяем, существует ли выборы
+        print(f"🔍 Получение кандидатов для выборов с ID: {election_id}")
         election = get_object_or_404(Election, id=election_id)
-        print(f"Выборы найдены: {election.title}")
+        print(f"✅ Выборы найдены: {election.title}")
 
-        # Получаем кандидатов для выборов
         candidates = Candidate.objects.filter(election=election)
-        print(f"Найдено кандидатов: {candidates.count()}")
+        print(f"✅ Найдено кандидатов: {candidates.count()}")
 
-        # Проверяем, есть ли кандидаты
         if not candidates.exists():
+            print(f"⚠️ Кандидаты не найдены для выборов с ID: {election_id}")
             return JsonResponse({'success': False, 'error': 'Кандидаты не найдены'}, status=404)
 
-        # Проверяем существование шаблона
+        # Проверяем, существует ли шаблон
         try:
-            template = get_template('partials/candidates_list.html')
-            print(f"Шаблон найден: {template.origin.name}")
-        except TemplateDoesNotExist as e:
-            print(f"Шаблон не найден: {e}")
-            return JsonResponse({'success': False, 'error': f'Шаблон не найден: {e}'}, status=500)
-        except TemplateSyntaxError as e:
-            print(f"Ошибка в синтаксисе шаблона: {e}")
-            return JsonResponse({'success': False, 'error': f'Ошибка в синтаксисе шаблона: {e}'}, status=500)
-
-        # Рендерим HTML для списка кандидатов
-        html = render(request, 'partials/candidates_list.html', {'candidates': candidates}).content.decode('utf-8')
-        print("HTML успешно сгенерирован")
+            html = render(request, 'partials/candidates_list.html', {'candidates': candidates}).content.decode('utf-8')
+            print(f"✅ HTML успешно сгенерирован для выборов с ID: {election_id}")
+        except Exception as e:
+            print(f"❌ Ошибка при рендеринге шаблона: {e}")
+            return JsonResponse({'success': False, 'error': 'Ошибка рендеринга шаблона'}, status=500)
 
         return JsonResponse({'success': True, 'html': html})
     except Exception as e:
-        # Логируем ошибку и возвращаем сообщение об ошибке
-        print(f"Ошибка загрузки кандидатов: {e}")
+        print(f"❌ Ошибка при обработке запроса: {e}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)

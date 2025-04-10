@@ -1,11 +1,16 @@
+{% load static %}
 {% for candidate in candidates %}
     <div class="candidate-card">
         {% if candidate.photo %}
             <img src="{{ candidate.photo.url }}" alt="{{ candidate.name }}">
+        {% else %}
+            <img src="{% static 'images/default-candidate.jpg' %}" alt="Default Candidate">
         {% endif %}
         <div class="card-body">
             <h5>{{ candidate.name }}</h5>
-            <p>{{ candidate.bio|default:"" }}</p>
+            <p>{{ candidate.bio|default:"Описание отсутствует" }}</p>
         </div>
     </div>
+{% empty %}
+    <p>Кандидаты отсутствуют для данной номинации.</p>
 {% endfor %}

@@ -1,287 +1,272 @@
-{% load i18n static %}
-
+{% load static i18n %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% trans "Церемония | USG Alumni Leaders" %}</title>
-    
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% trans "USG Alumni Leaders" %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- FontAwesome (Если иконки нужны) -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    
-    <!-- Django URL переменные -->
-    <script>
-        var registerUrl = "{% url 'authapp:register_user' %}";
-        var verifyUrl = "{% url 'authapp:verify_code' %}";
-    </script>
 </head>
-<body>
 
-    <!-- Хедер -->
-    <header class="header">
-        <div class="container">
-            <div class="d-flex align-items-center">
-                <div class="logo me-3">{% trans "LOGO" %}</div>
-                <div class="dropdown">
-                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        {% trans "Язык" %}
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-                        <li>
-                            <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" name="language" value="ru" class="dropdown-item">{% trans "Русский" %}</button>
-                            </form>
-                        </li>
-                        <li>
-                            <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" name="language" value="en" class="dropdown-item">{% trans "Английский" %}</button>
-                            </form>
-                        </li>
-                        <li>
-                            <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" name="language" value="kk" class="dropdown-item">{% trans "Казахский" %}</button>
-                            </form>
-                        </li>
-                    </ul>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="header-title">
+                <img src="{% static 'img/usg-logo.png' %}" alt="USG Logo">
+                <h2>{% trans "USG Alumni Leaders" %}</h2>
+                {% if user.is_authenticated %}
+                    {% trans "Добро пожаловать" %}, {{ user.email }}
+                {% endif %}
+            </div>
+            <div class="burger-menu">
+                <div class="auth-buttons">
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'authapp:logout' %}" method="post">
+                            {% csrf_token %}
+                            <button class="auth-btn" id="logout-btn">{% trans "Выйти" %}</button>
+                        </form>
+                    {% else %}
+                        <button class="auth-btn" id="register-btn">{% trans "Регистрация" %}</button>
+                        <button class="auth-btn" id="login-btn">{% trans "Войти" %}</button>
+                    {% endif %}
+                </div>
+                <button id="burger-btn">{% trans "Меню" %} ☰</button>
+                <div class="burger-dropdown">
+                    <a href="/?lang=ru">{% trans "Русский" %}</a>
+                    <a href="/?lang=en">{% trans "English" %}</a>
+                    <a href="/?lang=kk">{% trans "Қазақша" %}</a>
                 </div>
             </div>
-            <nav class="menu">
-                {% if user.is_authenticated %}
-                    <form action="{% url 'authapp:logout' %}?next=/" method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button class="btn btn-outline-light btn-sm">{% trans "Выход" %}</button>
-                    </form>
-                {% else %}
-                    <button class="btn btn-outline-light btn-sm" id="registerBtn">{% trans "Зарегистрироваться" %}</button>
-                    <button class="btn btn-outline-light btn-sm" id="loginBtn">{% trans "Войти" %}</button>
-                {% endif %}
-            </nav>
         </div>
     </header>
 
-    <!-- Фото и обратный отсчет -->
-    <section class="photo-section">
-        <div class="photo-placeholder">
-            <img src="{% static 'images/background.png' %}" alt="Placeholder" class="img-fluid">
-            <div class="photo-text">
-                <h1>{% trans "Добро пожаловать на сайт USG Alumni Leaders" %}</h1>
-                <p>{% trans "Здесь вы можете выбрать лучших лидеров и проголосовать за них." %}</p>
+    <section class="timer-section">
+        <div class="timer-title">{% trans "До начала голосования осталось:" %}</div>
+            <div class="timer">
+                <div class="time-box">
+                    <h2 id="days">00</h2>
+                    <p>Дней</p>
+                </div>
+                <div class="time-box">
+                    <h2 id="hours">00</h2>
+                    <p>Часов</p>
+                </div>
+                <div class="time-box">
+                    <h2 id="minutes">00</h2>
+                    <p>Минут</p>
+                </div>
+                    <div class="time-box">
+                    <h2 id="seconds">00</h2>
+                    <p>Секунд</p>
+                </div>
             </div>
+    </section>
+
+    <section class="about-section">
+        <div class="about-container">
+            <h2 class="section-title">{% trans "О голосовании" %}</h2>
+            <p class="section-description">
+                {% trans "“USG Alumni Leaders in Action” — это инициатива, направленная на признание выпускников, которые вносят значимый вклад в развитие общества. Проголосуйте за лидеров, чьи проекты вдохновляют и меняют мир к лучшему." %}
+            </p>
         </div>
     </section>
 
-    <div class="countdown">
-        <div class="countday">
-            <p>{% trans "Обратный отсчет дней" %}</p>
-            <h1 id="daysRemaining">30</h1>
-            <p>{% trans "ДНЕЙ ДО МЕРОПРИЯТИЯ" %}</p>
-        </div>
-        <!-- О нас -->
-        <section class="about-section text-center py-5">
-            <div class="container">
-                <h2>{% trans "Приветствуем вас на ежегодной церемонии голосования USG Alumni Leaders in Action! Эта уникальная платформа создана специально для того, чтобы выпускники могли выбрать самых достойных, талантливых и выдающихся представителей в 9 ключевых номинациях. Ваш голос имеет огромное значение и поможет определить лидеров, которые будут представлять интересы нашего сообщества, вдохновлять других и вносить значительный вклад в развитие в 2025 году. Присоединяйтесь к нам и станьте частью этого важного события!"%}</h2>
+    <section class="election-section">
+        <h2 class="section-title">{% trans "Список номинаций" %}</h2>
+        
+        {% for election in elections %}
+        <div class="elections">
+            <h3 class="election-title">{{ election.title }}</h3>
+            <div class="candidates-grid">
+                {% for candidate in election.candidates.all %}
+                <div class="candidate-card">
+                    <img src="{{ candidate.photo.url }}" alt="{{ candidate.name }}">
+                    <h5>{{ candidate.name }}</h5>
+                    <p>{{ candidate.bio|default:"Описание отсутствует" }}</p>
+                    <button class="vote-btn" data-election-id="{{ election.id }}" data-candidate-id="{{ candidate.id }}">Голосовать</button>
+                </div>
+                {% endfor %}
             </div>
-        </section>
-        <section class="countday-flag">
-            <img src="{% static 'images/flag.png' %}" alt="Flag" class="img-fluid">
-        </section>
+        </div>
+        {% empty %}
+        <p>Нет активных номинаций.</p>
+        {% endfor %}
+    </section>
+
+    <script>
+        // Таймер (дата голосования — 15 апреля 2025)
+        const countdownDate = new Date("2025-04-15T00:00:00").getTime();
+        const daysEl = document.getElementById("days");
+        const hoursEl = document.getElementById("hours");
+        const minutesEl = document.getElementById("minutes");
+        const secondsEl = document.getElementById("seconds");
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const diff = countdownDate - now;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            daysEl.textContent = days.toString().padStart(2, '0');
+            hoursEl.textContent = hours.toString().padStart(2, '0');
+            minutesEl.textContent = minutes.toString().padStart(2, '0');
+            secondsEl.textContent = seconds.toString().padStart(2, '0');
+        }
+
+        updateTimer();
+        setInterval(updateTimer, 1000);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const registerBtn = document.getElementById('register-btn');
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const registerModal = document.getElementById('register-modal');
+            const loginModal = document.getElementById('login-modal');
+
+            if (registerBtn) {
+                registerBtn.addEventListener('click', () => {
+                    registerModal.style.display = 'flex';
+                });
+            }
+
+            if (loginBtn) {
+                loginBtn.addEventListener('click', () => {
+                    loginModal.style.display = 'flex';
+                });
+            }
+
+
+
+            document.addEventListener('click', (e) => {
+                if (e.target === registerModal) {
+                    registerModal.style.display = 'none';
+                }
+                if (e.target === loginModal) {
+                    loginModal.style.display = 'none';
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const faqItems = document.querySelectorAll('.faq-item');
+
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                const answer = item.querySelector('.faq-answer');
+
+                question.addEventListener('click', () => {
+                    const isOpen = item.classList.contains('open');
+
+                    // Close all other FAQ items
+                    faqItems.forEach(i => i.classList.remove('open'));
+
+                    if (!isOpen) {
+                        item.classList.add('open');
+                    }
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const voteButtons = document.querySelectorAll('.vote-btn');
+
+            voteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const electionId = this.getAttribute('data-election-id');
+                    const candidateId = this.getAttribute('data-candidate-id');
+
+                    fetch(`/vote/${electionId}/${candidateId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            alert(data.message); // Успешное сообщение
+                        } else if (data.error) {
+                            alert(data.error); // Сообщение об ошибке
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка:', error);
+                        alert('Произошла ошибка при голосовании.');
+                    });
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const burgerBtn = document.getElementById('burger-btn');
+            const burgerDropdown = document.querySelector('.burger-dropdown');
+
+            burgerBtn.addEventListener('click', () => {
+                burgerDropdown.classList.toggle('visible');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!burgerBtn.contains(e.target) && !burgerDropdown.contains(e.target)) {
+                    burgerDropdown.classList.remove('visible');
+                }
+            });
+        });
+    </script>
+
+    <div class="modal" id="register-modal">
+        <div class="modal-content">
+            <h2>Регистрация</h2>
+            <input type="text" placeholder="Имя пользователя" />
+            <input type="email" placeholder="Email" />
+            <input type="password" placeholder="Пароль" />
+            <button id="register-submit">Зарегистрироваться</button>
+        </div>
     </div>
 
-    <!-- Спонсоры -->
-    <section class="sponsors-section">
-        <h2>{% trans "OUR SPONSORS" %}</h2>
-        <div class="sponsor-card"></div>
-        <div class="sponsor-card"></div>
-        <div class="sponsor-card"></div>
-    </section>
-
-    <!-- Расписание -->
-    <section class="event-agenda">
-        <h2>{% trans "EVENT AGENDA" %}</h2>
-        <p>18:00...</p>
-    </section>
-
-    <!-- Галерея -->
-    <section class="event-gallery">
-        <h2>{% trans "EVENT GALLERY" %}</h2>
-        <div class="gallery-card"></div>
-        <div class="gallery-card"></div>
-        <div class="gallery-card"></div>
-    </section>
-
-    <!-- Карта и контакты -->
-    <section class="map-contacts">
-        <h2>{% trans "MAP, CONTACTS, HOW TO GET" %}</h2>
-    </section>
-
-    <!-- Модельное окно для входа -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header d-flex justify-content-center position-relative">
-                    <h5 class="modal-title">Вход</h5>
-                    <button type="button" class="btn-close position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                </div>
-
-                <div class="modal-body">
-                    <form id="loginForm" data-login-url="{% url 'authapp:login' %}">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="loginEmail" class="form-label d-flex justify-content-center">Email</label>
-                            <input type="email" class="form-control text-center" id="loginEmail" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="loginPassword" class="form-label d-flex justify-content-center">Пароль</label>
-                            <input type="password" class="form-control text-center" id="loginPassword" name="password" required>
-                        </div>
-                        <div class="d-flex justify-content-center">
-                            <button type="submit" class="btn btn-primary">Войти</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <h2>Вход</h2>
+            <input type="email" placeholder="Email" />
+            <input type="password" placeholder="Пароль" />
+            <button id="login-submit">Войти</button>
         </div>
     </div>
 
-    <!-- Основной контент страницы -->
-    <div class="nomination-candidate-container">
-        <!-- Колонка номинаций -->
-        <div class="nomination-column">
-            {% for election in elections %}
-                <div class="nomination-card election-btn" data-election-id="{{ election.id }}">
-                    {% if election.photo %}
-                        <img src="{{ election.photo.url }}" alt="{{ election.title }}">
-                    {% endif %}
-                    <h5 class="card-title">{{ election.title }}</h5>
-                    <p class="description">{{ election.description|default:"" }}</p>
-                </div>
-            {% endfor %}
-        </div>
-
-        <!-- Колонка кандидатов -->
-        <div class="candidate-column" id="candidates-section">
-            <!-- Кандидаты будут загружаться динамически -->
-        </div>
-    </div>
-
-    <!-- Модальное окно "Ваш голос учтен" -->
-    <div class="modal fade" id="voteModal" tabindex="-1" aria-labelledby="voteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header d-flex justify-content-center position-relative">
-                    <h5 class="modal-title" id="voteModalLabel">Уведомление</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <!-- Сообщение будет подставляться через JS -->
-                </div>
+    <section class="faq-section">
+        <h2 class="section-title">Часто задаваемые вопросы</h2>
+        <div class="faq-item">
+            <div class="faq-question">
+                <h3>Как принять участие в голосовании?</h3>
+            </div>
+            <div class="faq-answer">
+                <p>Чтобы принять участие в голосовании, вам нужно зарегистрироваться на сайте и пройти процесс авторизации.</p>
             </div>
         </div>
-    </div>
-
-    <!-- Модальное окно регистрации -->
-    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header d-flex justify-content-center position-relative">
-                    <h5 class="modal-title">Регистрация</h5>
-                    <button type="button" class="btn-close position-absolute end-0 me-2" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                </div>
-
-                <div class="modal-body">
-                    <!-- Форма регистрации -->
-                    <form id="registerForm">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="username" class="form-label d-flex justify-content-center">ФИО</label>
-                            <input type="text" class="form-control text-center" id="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label d-flex justify-content-center">Email</label>
-                            <input type="email" class="form-control text-center" id="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label d-flex justify-content-center">Пароль</label>
-                            <input type="password" class="form-control text-center" id="password" required>
-                        </div>
-                        <div class="d-flex justify-content-center">
-                            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
-                        </div>
-                    </form>
-
-                    <!-- Форма подтверждения -->
-                    <form id="verifyForm" class="d-none">
-                        <div class="mb-3">
-                            <label for="code" class="form-label d-flex justify-content-center">Код подтверждения</label>
-                            <input type="text" class="form-control text-center" id="code" required>
-                        </div>
-                        <div class="d-flex justify-content-center">
-                            <button type="submit" class="btn btn-success">Подтвердить</button>
-                        </div>
-                    </form>
-                </div>
-                
+        <div class="faq-item">
+            <div class="faq-question">
+                <h3>Когда будет объявлен победитель?</h3>
+            </div>
+            <div class="faq-answer">
+                <p>Победитель будет объявлен через неделю после завершения голосования.</p>
             </div>
         </div>
-    </div> <!-- Закрытие модального окна регистрации -->
-
-    <!-- Футер -->
-    <footer class="footer text-white py-4 mt-auto">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>{% trans "Контактная информация" %}</h5>
-                    <p>{% trans "Адрес:" %} 1234, г. Алматы, ул. Абая, д. 56</p>
-                    <p>{% trans "Телефон:" %} +7 (727) 123-45-67</p>
-                    <p>{% trans "Email:" %} info@usg-alumni.kz</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <h5>{% trans "Следите за нами" %}</h5>
-                    <a href="#" class="text-white me-3"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-white"><i class="fab fa-linkedin"></i></a>
-                </div>
+        <div class="faq-item">
+            <div class="faq-question">
+                <h3>Могу ли я изменить свой голос?</h3>
             </div>
-            <div class="text-center mt-3">
-                <p class="mb-0">&copy; 2025 USG Alumni Leaders. {% trans "Все права защищены." %}</p>
+            <div class="faq-answer">
+                <p>Нет, после того как вы проголосуете, ваш выбор будет окончательным.</p>
             </div>
         </div>
-    </footer>
+    <!-- Добавь другие вопросы по мере необходимости -->
+    </section>
 
-    <!-- Скрипт для открытия модального окна -->
-    <script src="{% static 'js/modal-register.js' %}"></script>
-
-    <!-- Подключение кастомных скриптов -->
-    <script src="{% static 'js/register.js' %}"></script>
-    <script src="{% static 'js/auth.js' %}"></script>
-    <script src="{% static 'js/vote.js' %}"></script>
     <script src="{% static 'js/cards.js' %}"></script>
-    <script src="{% static 'js/countday.js' %}"></script>
-
-    <!-- <script src="{% static 'js/login.js' %}"></script> -->
-
-    <style>
-    .greeting-text {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-    }
-    .language-switcher a {
-        margin-left: 5px;
-    }
-    </style>
-
+    
 </body>
 </html>
