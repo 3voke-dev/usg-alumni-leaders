@@ -31,7 +31,7 @@
                         <button class="auth-btn" id="login-btn">{% trans "Войти" %}</button>
                     {% endif %}
                 </div>
-                <button id="burger-btn">{% trans "Меню" %} ☰</button>
+                <button id="burger-btn">☰</button>
                 <div class="burger-dropdown">
                     <a href="/?lang=ru">{% trans "Русский" %}</a>
                     <a href="/?lang=en">{% trans "English" %}</a>
@@ -78,6 +78,7 @@
         {% for election in elections %}
         <div class="elections">
             <h3 class="election-title">{{ election.title }}</h3>
+            <h4 class="election-description">{{ election.description|default:"" }}</h4>
             <div class="candidates-grid">
                 {% for candidate in election.candidates.all %}
                 <div class="candidate-card">
@@ -173,6 +174,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const voteButtons = document.querySelectorAll('.vote-btn');
+            const messageModal = document.getElementById('message-modal');
+            const messageContent = document.getElementById('message-content');
+            const closeModalBtn = document.getElementById('close-modal-btn');
 
             voteButtons.forEach(button => {
                 button.addEventListener('click', function () {
@@ -188,17 +192,25 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.message) {
-                            alert(data.message); // Успешное сообщение
-                        } else if (data.error) {
-                            alert(data.error); // Сообщение об ошибке
-                        }
+                        messageContent.textContent = data.message || data.error; // Display message or error
+                        messageModal.style.display = 'flex'; // Show modal
                     })
                     .catch(error => {
                         console.error('Ошибка:', error);
-                        alert('Произошла ошибка при голосовании.');
+                        messageContent.textContent = 'Произошла ошибка при голосовании.';
+                        messageModal.style.display = 'flex'; // Show modal
                     });
                 });
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                messageModal.style.display = 'none'; // Hide modal
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target === messageModal) {
+                    messageModal.style.display = 'none'; // Hide modal when clicking outside
+                }
             });
         });
 
@@ -217,6 +229,13 @@
             });
         });
     </script>
+
+    <div class="modal" id="message-modal">
+        <div class="modal-content">
+            <p id="message-content"></p>
+            <button id="close-modal-btn">Закрыть</button>
+        </div>
+    </div>
 
     <div class="modal" id="register-modal">
         <div class="modal-content">
